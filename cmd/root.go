@@ -3,7 +3,9 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
+	"net/http"
 	"os"
+	"sentry-bot/support/networking"
 	"strings"
 )
 
@@ -49,6 +51,13 @@ _  __  / /  __/  / _  / / /_/ /     ____/ //  __/  / / / /_ _  /   _  /_/ /
 
 var rootCtxRequestURL *string
 
+// 初始化
+func init() {
+	validateBuild()
+	rootCtxRequestURL = RootCmd.PersistentFlags().String("ctx-rest-url", "", "URL to use for the CCXT-rest API. Takes precendence over the CCXT_REST_URL param set in the botConfg file for the trade command and passed as a parameter into the Kelp subprocesses started by the GUI (default URL is https://localhost:3000)")
+	RootCmd.AddCommand(versionCmd)
+}
+
 // 检查初始化flag参数
 func checkInitRootFlags() {
 	if *rootCtxRequestURL != "" {
@@ -58,7 +67,12 @@ func checkInitRootFlags() {
 			panic("'ctx-request-url' argument must start with either `http://` or `https://`")
 		}
 
-		e:=
+		e := testCtxURL(*rootCtxRequestURL)
+		if e != nil {
+			panic(e)
+		}
+
+		//TODO
 	}
 }
 
@@ -70,9 +84,11 @@ func validateBuild() {
 	}
 }
 
-
-
 // 测试url请求是否可用
-func testCtxURL(ctxUrl string)error  {
-	e:=networki
+func testCtxURL(ctxUrl string) error {
+	e := networking.JSONRequest(http.DefaultClient, "GET", ctxUrl, "", map[string]string{}, nil, "")
+	if e != nil {
+		return fmt.Errorf("无法解析连接地址: %s", ctxUrl)
+	}
+	return nil
 }

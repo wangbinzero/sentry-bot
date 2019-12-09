@@ -85,7 +85,7 @@ func JSONRequest(httpClient *http.Client,
 	if responseData != nil {
 		// parse response, the passed in responseData should be a pointer
 		err = json.Unmarshal(body, responseData)
-		if e != nil {
+		if err != nil {
 			return fmt.Errorf("could not unmarshall response body into json: %s | response body: %s", err, bodyString)
 		}
 	}
